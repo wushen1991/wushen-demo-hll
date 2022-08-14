@@ -29,4 +29,29 @@ public class TestController {
     public User listOne(String username){
         return userService.findByUsername(username);
     }
+
+
+
+    @RequestMapping("/insertone")
+    @ResponseBody
+    public User insertOne(String username,String passward){
+        User u =new User();
+        u.setNumber(22);
+        u.setUsername(username);
+        u.setPassword(passward);
+        userService.insertUser(u);
+        return u;
+    }
+
+
+    @RequestMapping("/update")
+    @ResponseBody
+    public User updateOne(String username,String passward,Integer id){
+        User u =new User();
+        u.setId(id);
+        u.setUsername(username);
+        u.setPassword(passward);
+        userService.updateUser(u);
+        return u;
+    }
 }

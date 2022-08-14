@@ -1,13 +1,33 @@
 #logging:
 #  level: info
-# 数据源
-spring:
+
+
+db1:
   datasource:
-    ### 在同一个网络中，bridge  pro-net   容器之间不仅可以通过ip访问，而且可以通过名称
     url: jdbc:mysql://localhost:3306/mytest?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
     password: root123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+
+
+
+db2:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mytest?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: root123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# 数据源
+#spring:
+#  datasource:
+#    ### 在同一个网络中，bridge  pro-net   容器之间不仅可以通过ip访问，而且可以通过名称
+#    url: jdbc:mysql://localhost:3306/mytest?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+#    username: root
+#    password: root123456
+#    driver-class-name: com.mysql.cj.jdbc.Driver
 
 # mybatis托管mapper文件
 mybatis:
