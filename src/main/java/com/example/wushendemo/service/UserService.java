@@ -2,10 +2,12 @@ package com.example.wushendemo.service;
 
 import com.example.wushendemo.dao.UserMapper;
 import com.example.wushendemo.domain.User;
+import com.example.wushendemo.metrics.Metrics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,8 +15,16 @@ import java.util.List;
 @Service
 public class UserService implements IUserService{
 
+
     @Autowired
     private UserMapper userMapper;
+
+//@Autowired
+//private UserService userService;
+
+
+    @Autowired
+    private UserServiceB userServiceB;
 
     @Override
     public User findByUsername(String username) {
@@ -27,22 +37,14 @@ public class UserService implements IUserService{
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public int insertUser(User user) {
-        int insert = userMapper.insert(user);
-        if(1==1)
-        throw new RuntimeException();
-        return insert;
-    }
-
-
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
+    @Metrics
     @Override
     public int updateUser(User user) {
         int update = userMapper.update(user);
-        if(user.getId()==5)
+        if(user.getId()==5){
             throw new RuntimeException();
+        }
         return update;
     }
 
@@ -53,9 +55,14 @@ public class UserService implements IUserService{
     }
 
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public int errorUserOne(User user) {
-        return 0;
+    public int insertUser(User user) {
+        int insert = userMapper.insert(user);
+        if(1==1){
+            throw new RuntimeException();
+        }
+        return insert;
     }
 
 
@@ -65,15 +72,16 @@ public class UserService implements IUserService{
      */
 
 
-    public int test(){
-//        localPrivate();
-        localPublic();
+    @Override
+    public int insertUserOne(User user) {
+        localPrivate(user);
         return 0;
     }
 
     @Transactional
-    private int localPrivate(){
-        //
+    private int localPrivate(User user){
+        //执行入库操作
+        userMapper.insert(user);
         if(1==1){
             throw new RuntimeException("localPrivate");
         }
@@ -81,9 +89,16 @@ public class UserService implements IUserService{
     }
 
 
+    @Override
+    public int insertUserTwo(User user) {
+        localPublic(user);
+        return 0;
+    }
+
     @Transactional
-    public int localPublic(){
-        //
+    public int localPublic(User user){
+        //执行入库操作
+        userMapper.insert(user);
         if(1==1){
             throw new RuntimeException("localPublic");
         }
@@ -96,12 +111,16 @@ public class UserService implements IUserService{
      * @param user
      * @return
      */
+    @Override
     @Transactional
-    public int creatUserWrong(User user){
+    public int insertUserNoExc(User user){
         try {
             userMapper.insert(user);
+            if(1==1){
+                throw new RuntimeException("insertUserNoExc");
+            }
         }catch (Exception e){
-
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         return 0;
     }
@@ -109,13 +128,12 @@ public class UserService implements IUserService{
     /**
      * 事务的异常机制
      * @param user
-     * @return
+     * @return @Transactional(rollbackFor = Exception.class)
      * @throws IOException
      */
-
+    @Override
     @Transactional(rollbackFor = Exception.class)
-//    @Transactional
-    public int creatUserWrong2(User user) throws IOException {
+    public int creatUserErrorBack(User user) throws IOException {
         userMapper.insert(user);
         task();
         return 0;
@@ -129,39 +147,32 @@ public class UserService implements IUserService{
 
 
     /**
+     * A插入成功，B回滚不影响A插入
      * 事务的传播行为
+     * @Transactional(propagation = Propagation.REQUIRES_NEW)
      * @param user
      * @return
      */
 
+    @Override
     @Transactional
-    public int createUserA1(User user){
+    public int createUserAB1(User user){
         userMapper.insert(user);
-        creatUserB();
+        userServiceB.updateB(user);
         return 0;
     }
 
 
-
+    @Override
     @Transactional
-    public int createUserA(User user){
+    public int createUserAB2(User user){
         userMapper.insert(user);
         try {
-            creatUserB();
+            userServiceB.updateB(user);
         }catch (Exception e){
 
         }
         return 0;
     }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    @Transactional
-    public int creatUserB(){
-        if(1==1){
-            throw new RuntimeException("testB");
-        }
-        return 0;
-    }
-
 
 }

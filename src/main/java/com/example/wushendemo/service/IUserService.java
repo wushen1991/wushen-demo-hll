@@ -3,6 +3,7 @@ package com.example.wushendemo.service;
 import com.example.wushendemo.domain.User;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface IUserService {
@@ -19,7 +20,17 @@ public interface IUserService {
 
      int delete(int id);
 
-     int  errorUserOne(User user);
+     int  insertUserOne(User user);
+
+     int insertUserTwo(User user);
+
+     int insertUserNoExc(User user);
+
+     int creatUserErrorBack(User user) throws IOException;
+
+     int createUserAB1(User user);
+
+     int createUserAB2(User user);
 
 
 }
